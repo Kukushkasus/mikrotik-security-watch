@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>6.0</version>
+    <template_groups>
+        <template_group>
+            <uuid>3ceec4b8fc4241159d93f4e728f2d9d0</uuid>
+            <name>Templates/Network devices</name>
+        </template_group>
+    </template_groups>
+    <templates>
+        <template>
+            <uuid>8e770f2ba2394349909c818b9d16a313</uuid>
+            <template>MikroTik Security Watch</template>
+            <name>MikroTik Security Watch</name>
+            <description>RU: Security-мониторинг MikroTik: новые пользователи, включённые опасные сервисы (telnet/ftp/www), состояние фаервола, NTP, версия RouterOS. Данные присылает внешний скрипт run_check.py через trapper items, сам Zabbix ничего не опрашивает. / EN: MikroTik security monitoring: new users, risky services enabled (telnet/ftp/www), firewall status, NTP, RouterOS version. Data is pushed by the external run_check.py script via trapper items; Zabbix itself never polls the router.</description>
+            <groups>
+                <group>
+                    <name>Templates/Network devices</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <uuid>44a1223bc2354786a60f89dda7ff6b5e</uuid>
+                    <name>Security: количество событий за проверку / event count</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.event_count</key>
+                    <value_type>UNSIGNED</value_type>
+                    <description>RU: Сколько security-событий обнаружено при последнем запуске run_check.py / EN: How many security events were found on the last run_check.py run</description>
+                    <tags>
+                        <tag>
+                            <tag>component</tag>
+                            <value>security</value>
+                        </tag>
+                    </tags>
+                </item>
+                <item>
+                    <uuid>b5ab7ddb893a4154bba2e68787460e34</uuid>
+                    <name>RouterOS: версия / version</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.ros_version</key>
+                    <value_type>CHAR</value_type>
+                    <description>RU: Текущая версия RouterOS / EN: Current RouterOS version</description>
+                </item>
+                <item>
+                    <uuid>e6c2d137a0894b56a21fb0c616e96e2b</uuid>
+                    <name>Firewall: количество правил / rule count (input+forward+output)</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.firewall_rule_count</key>
+                    <value_type>UNSIGNED</value_type>
+                </item>
+                <item>
+                    <uuid>1655b3875e9b404ead3d310b0cc5393d</uuid>
+                    <name>Firewall: есть активное drop-правило в input / has active input drop rule</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.firewall_input_has_drop</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>dd4d942f81f5487095ea0e8a76039c51</uuid>
+                    <name>NTP-клиент включён / NTP client enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.ntp_enabled</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>024a3355a9e04af78e0911d02268669a</uuid>
+                    <name>Сервис telnet включён / telnet service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.telnet</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>0f86b934ce974a989e079540923fd740</uuid>
+                    <name>Сервис ftp включён / ftp service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.ftp</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>bbf3f05db89143f793a823821e2578c6</uuid>
+                    <name>Сервис www включён / www service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.www</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>d2489e6e85294a19909173e747d1cd83</uuid>
+                    <name>Сервис api включён / api service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.api</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>c48cee9fee614537b2142618c9fba2af</uuid>
+                    <name>Сервис winbox включён / winbox service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.winbox</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>a489d3b7766346bcb2cbdf5ebea76cfe</uuid>
+                    <name>Сервис ssh включён / ssh service enabled</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.service.ssh</key>
+                    <value_type>UNSIGNED</value_type>
+                    <valuemap>
+                        <name>MikroTik Security Watch: bool</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <uuid>2e9d8ca720594e03874f62e793c80a7f</uuid>
+                    <name>Security: события за проверку (JSON) / events (JSON)</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.events_json</key>
+                    <value_type>TEXT</value_type>
+                    <description>RU: Полный список событий последней проверки в формате JSON — для истории и разбора / EN: Full list of events from the last check as JSON — for history and analysis</description>
+                </item>
+                <item>
+                    <uuid>c5485f3061b14da180651eae5bb1a35f</uuid>
+                    <name>Security: последнее (самое серьёзное) событие / last (most severe) event</name>
+                    <type>TRAP</type>
+                    <key>mikrotik.secwatch.last_event</key>
+                    <value_type>CHAR</value_type>
+                </item>
+            </items>
+            <triggers>
+                <trigger>
+                    <uuid>571cd734f6044182baff2df665fe6913</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.event_count)&gt;0</expression>
+                    <name>{HOST.NAME}: обнаружены security-события / security events detected</name>
+                    <priority>AVERAGE</priority>
+                    <description>RU: Посмотри mikrotik.secwatch.last_event и mikrotik.secwatch.events_json для деталей / EN: Check mikrotik.secwatch.last_event and mikrotik.secwatch.events_json for details</description>
+                </trigger>
+                <trigger>
+                    <uuid>7a5f56fe35f14079a3de8ce3ac728e4d</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.firewall_input_has_drop)=0</expression>
+                    <name>{HOST.NAME}: нет активного drop-правила в input / no active input drop rule</name>
+                    <priority>HIGH</priority>
+                </trigger>
+                <trigger>
+                    <uuid>fc38640a7dcf4831918f01c35c3c3fb4</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.service.telnet)=1</expression>
+                    <name>{HOST.NAME}: включён telnet / telnet is enabled</name>
+                    <priority>HIGH</priority>
+                </trigger>
+                <trigger>
+                    <uuid>fa5dc1aad46740749f70116796d4c12b</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.service.ftp)=1</expression>
+                    <name>{HOST.NAME}: включён ftp / ftp is enabled</name>
+                    <priority>HIGH</priority>
+                </trigger>
+                <trigger>
+                    <uuid>a5097c773383443585fe1560672e7899</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.service.www)=1</expression>
+                    <name>{HOST.NAME}: включён небезопасный www / insecure www is enabled (instead of www-ssl)</name>
+                    <priority>WARNING</priority>
+                </trigger>
+                <trigger>
+                    <uuid>2356a7ffa9d04a9d9cedfe518ed8e763</uuid>
+                    <expression>last(/MikroTik Security Watch/mikrotik.secwatch.ntp_enabled)=0</expression>
+                    <name>{HOST.NAME}: NTP-клиент отключён / NTP client disabled</name>
+                    <priority>INFO</priority>
+                </trigger>
+                <trigger>
+                    <uuid>b157e6e30f7a4c38a562300e42efc7ab</uuid>
+                    <expression>nodata(/MikroTik Security Watch/mikrotik.secwatch.event_count,1h)=1</expression>
+                    <name>{HOST.NAME}: нет данных больше часа / no data for over an hour</name>
+                    <priority>WARNING</priority>
+                    <description>RU: Скрипт-сборщик не отправлял данные слишком долго: проверь cron/systemd timer и доступность роутера / EN: The collector script hasn't sent data for too long: check the cron/systemd timer and router availability</description>
+                </trigger>
+            </triggers>
+            <valuemaps>
+                <valuemap>
+                    <uuid>d60d1ecd24c6483a8206d069e3c0ddbe</uuid>
+                    <name>MikroTik Security Watch: bool</name>
+                    <mappings>
+                        <mapping>
+                            <value>0</value>
+                            <newvalue>Нет / выключено (No / disabled)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>1</value>
+                            <newvalue>Да / включено (Yes / enabled)</newvalue>
+                        </mapping>
+                    </mappings>
+                </valuemap>
+            </valuemaps>
+        </template>
+    </templates>
+</zabbix_export>
