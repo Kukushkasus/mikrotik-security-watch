@@ -45,7 +45,29 @@ pip install -r requirements.txt
 
 Zabbix: Data collection → Templates → Import → `zabbix/template_mikrotik_security_watch.xml`. Привяжи шаблон `MikroTik Security Watch` к нужному хосту.
 
-### 3. Настрой запуск по расписанию
+### 3. Настрой запуск
+
+Проще всего скопировать пример конфига и один раз заполнить его:
+
+```bash
+cp config.example.yaml config.yaml
+```
+
+Впиши туда данные роутера и Zabbix, потом просто запускай:
+
+```bash
+python3 run_check.py --config config.yaml
+```
+
+`config.yaml` уже в `.gitignore`, пароль никуда не утечёт при коммитах.
+
+Если нужно что-то временно поменять, не трогая файл — любой флаг из командной строки перекрывает значение из конфига:
+
+```bash
+python3 run_check.py --config config.yaml --router-host 192.168.1.1
+```
+
+Можно и вообще без конфига, просто флагами:
 
 ```bash
 python3 run_check.py \
@@ -59,7 +81,7 @@ python3 run_check.py \
 Добавь в cron, например раз в 5 минут:
 
 ```
-*/5 * * * * cd /path/to/mikrotik-security-watch && python3 run_check.py --router-host ... --zabbix-server ... --zabbix-host "MikroTik Office" >> secwatch.log 2>&1
+*/5 * * * * cd /path/to/mikrotik-security-watch && python3 run_check.py --config config.yaml >> secwatch.log 2>&1
 ```
 
 ---
@@ -92,6 +114,8 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
+При каждом пуше в main тесты также гоняются автоматически через GitHub Actions.
+
 ---
 
 ## Структура проекта
@@ -101,8 +125,10 @@ mikrotik-security-watch/
 ├── secwatch/
 │   ├── collector.py   # снимает состояние роутера
 │   ├── baseline.py    # сравнивает снимки, находит события
-│   └── send.py        # отправляет метрики в Zabbix
-├── run_check.py        # точка входа, запускается по cron
+│   ├── send.py        # отправляет метрики в Zabbix
+│   └── config.py       # загрузка config.yaml
+├── run_check.py         # точка входа, запускается по cron
+├── config.example.yaml  # пример конфига, скопируй в config.yaml
 ├── zabbix/
 │   └── template_mikrotik_security_watch.xml
 ├── tests/
