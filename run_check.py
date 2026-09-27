@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
-RU: Точка входа. Запускается по расписанию (cron / systemd timer):
+Точка входа. Запускается по расписанию (cron / systemd timer).
 
-    python3 run_check.py \\
-        --router-host 192.168.88.1 --router-user zbx-secwatch --router-password '...' \\
-        --zabbix-server 10.0.0.5 --zabbix-host "MikroTik Office"
+Проще всего один раз завести config.yaml (см. config.example.yaml)
+и запускать так:
+
+    python3 run_check.py --config config.yaml
+
+Любой флаг из командной строки, если его указать, перекрывает то, что
+написано в config.yaml — так можно временно что-то поменять, не трогая
+сам файл.
 
 При каждом запуске:
 1. подключается к роутеру и снимает текущее security-состояние
@@ -12,19 +17,6 @@ RU: Точка входа. Запускается по расписанию (cro
 3. найденные изменения превращает в события
 4. отправляет и состояние, и события в Zabbix через trapper items
 5. сохраняет новый снимок как baseline для следующего раза
-
-EN: Entry point. Meant to be run on a schedule (cron / systemd timer):
-
-    python3 run_check.py \\
-        --router-host 192.168.88.1 --router-user zbx-secwatch --router-password '...' \\
-        --zabbix-server 10.0.0.5 --zabbix-host "MikroTik Office"
-
-On every run it:
-1. connects to the router and takes the current security state snapshot
-2. compares it against the saved baseline.json (previous run's snapshot)
-3. turns the found changes into events
-4. sends both the state and the events to Zabbix via trapper items
-5. saves the new snapshot as the baseline for next time
 """
 
 import argparse
@@ -37,6 +29,15 @@ from librouteros import connect
 from secwatch.collector import gather_state
 from secwatch.baseline import diff_state
 from secwatch.send import push_to_zabbix
+from secwatch.config import load_config, apply_config_defaults
+
+REQUIRED_KEYS = [
+    "router_host",
+    "router_user",
+    "router_password",
+    "zabbix_server",
+    "zabbix_host",
+]
 
 
 def load_baseline(path):
@@ -51,60 +52,81 @@ def save_baseline(path, state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description=(
-            "Снимает security-состояние MikroTik и шлёт события в Zabbix / "
-            "Takes a MikroTik security state snapshot and sends events to Zabbix"
-        )
+        description="Снимает security-состояние MikroTik и шлёт события в Zabbix"
     )
-    parser.add_argument("--router-host", required=True)
-    parser.add_argument("--router-user", required=True)
-    parser.add_argument("--router-password", required=True)
-    parser.add_argument("--router-port", type=int, default=8728)
-    parser.add_argument("--zabbix-server", required=True)
-    parser.add_argument("--zabbix-port", type=int, default=10051)
+    parser.add_argument("--config", help="Путь к YAML-конфигу (см. config.example.yaml)")
+    parser.add_argument("--router-host", dest="router_host", default=None)
+    parser.add_argument("--router-user", dest="router_user", default=None)
+    parser.add_argument("--router-password", dest="router_password", default=None)
+    parser.add_argument("--router-port", dest="router_port", type=int, default=None)
+    parser.add_argument("--zabbix-server", dest="zabbix_server", default=None)
+    parser.add_argument("--zabbix-port", dest="zabbix_port", type=int, default=None)
     parser.add_argument(
         "--zabbix-host",
-        required=True,
-        help=(
-            "Имя хоста в Zabbix, к которому привязан шаблон MikroTik Security Watch "
-            "/ Zabbix host name the MikroTik Security Watch template is linked to"
-        ),
+        dest="zabbix_host",
+        default=None,
+        help="Имя хоста в Zabbix, к которому привязан шаблон MikroTik Security Watch",
     )
     parser.add_argument(
         "--baseline",
-        default="baseline.json",
-        help=(
-            "Файл, где хранится снимок состояния с прошлого запуска "
-            "/ File that stores the state snapshot from the previous run"
-        ),
+        dest="baseline",
+        default=None,
+        help="Файл, где хранится снимок состояния с прошлого запуска",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main():
-    args = parse_args()
+def resolve_settings(args):
+    """Собирает финальные настройки из config-файла (если указан) и CLI-флагов."""
+    config = {}
+    if args.config:
+        config = load_config(args.config)
+
+    settings = apply_config_defaults(vars(args), config)
+    settings.pop("config", None)
+
+    settings.setdefault("router_port", 8728)
+    settings.setdefault("zabbix_port", 10051)
+    settings.setdefault("baseline", "baseline.json")
+
+    missing = [k for k in REQUIRED_KEYS if not settings.get(k)]
+    if missing:
+        raise SystemExit(
+            "Не хватает настроек: "
+            + ", ".join(missing)
+            + ". Укажи их в config.yaml или флагами командной строки "
+            "(например --router-host ...)."
+        )
+
+    return settings
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    settings = resolve_settings(args)
 
     api = connect(
-        username=args.router_user,
-        password=args.router_password,
-        host=args.router_host,
-        port=args.router_port,
+        username=settings["router_user"],
+        password=settings["router_password"],
+        host=settings["router_host"],
+        port=settings["router_port"],
     )
     try:
         state = gather_state(api)
     finally:
         api.close()
 
-    old_state = load_baseline(args.baseline)
+    old_state = load_baseline(settings["baseline"])
     events = diff_state(old_state, state)
-    save_baseline(args.baseline, state)
+    save_baseline(settings["baseline"], state)
 
-    push_to_zabbix(args.zabbix_server, args.zabbix_port, args.zabbix_host, state, events)
+    push_to_zabbix(
+        settings["zabbix_server"], settings["zabbix_port"], settings["zabbix_host"], state, events
+    )
 
-    # RU: короткий отчёт в консоль / EN: short console report
-    print(f"Готово. Событий найдено / Done. Events found: {len(events)}")
+    print(f"Готово. Событий найдено: {len(events)}")
     for e in events:
         print(f"  [{e['severity']}] {e['message']}")
 

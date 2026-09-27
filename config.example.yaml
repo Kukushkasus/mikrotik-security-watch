@@ -1,0 +1,13 @@
+# Скопируй этот файл в config.yaml и заполни своими значениями.
+# config.yaml добавлен в .gitignore — он не попадёт в git, пароль не утечёт.
+
+router_host: 192.168.88.1
+router_user: zbx-secwatch
+router_password: "сложный-пароль"
+router_port: 8728
+
+zabbix_server: 10.0.0.5
+zabbix_port: 10051
+zabbix_host: "MikroTik Office"
+
+baseline: baseline.json
